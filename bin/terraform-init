@@ -3,6 +3,17 @@ require 'bundler/setup'
 require 'thor'
 require 'json'
 require 'yaml'
+require 'pry'
+class Hash
+  def to_tfvars
+    # TODO: Refactor
+    string = ""
+    self.each do |key, value|
+      string = "#{string}#{key}=\"#{value}\"\n"
+    end
+    string
+  end
+end
 
 class TerrEnv < Thor
   desc "list", "list all environments"
@@ -28,12 +39,14 @@ class TerrEnv < Thor
 
   desc "delete [ENV_NAME]", "Remove environment"
   def delete(environment)
+    # TODO: Deleted environment can still be in use
     state_dir = state_dir_format(environment)
     FileUtils.rm_rf(state_dir)
   end
 
   desc "use [ENV_NAME]", "Switch to an env"
   def use(environment)
+    # TODO: Use can use environment that doesn't exist
     state_dir = state_dir_format(environment)
     puts "Using environment #{ state_dir }"
     FileUtils.rm('.terraform', :force => true)
@@ -42,7 +55,8 @@ class TerrEnv < Thor
 
   desc "remote_setup", "setup remote"
   def remote_setup
-    settings = YAML.load(File.read('Terrenv'))
+    # TODO Instead of using YAML or a Terrenv file, use the vars-<env>.tfvars file and parse key = "value"
+    settings = tf_to_hash(File.read('Terrenv'))
     puts "#{settings['project']}-#{current_env} remote being used"
     puts system("terraform remote config \
            -backend=s3 \
@@ -53,13 +67,17 @@ class TerrEnv < Thor
 
   desc "setup", "setup project"
   def setup
+    # TODO: Write it into the vars-<env>.tfvars
     settings = Hash.new
     settings['project'] = ask('Project name', 'empty')
     settings['bucket'] = ask('s3 bucket', 'telusdigital-terraform-states')
     settings['region'] = ask('bucket region', 'us-west-2')
-    File.open('Terrenv', 'w') { |file| file.write(settings.to_yaml) }
+    File.open("vars-#{current_env}.tfvars", 'w') { |file| file.write(settings.to_tfvars) }
   end
   private
+  def tf_to_hash(hash)
+
+  end
   def ask(question, default)
     print "#{question}(#{default}): "
     answer = STDIN.gets.chomp
