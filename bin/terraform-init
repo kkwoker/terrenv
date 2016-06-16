@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+require 'bundler/setup'
+require 'thor'
+require 'json'
+
+class TerrEnv < Thor
+  desc "list", "list all environments"
+  def list
+    puts "Listing all environments"
+  end
+
+  desc "create [ENV_NAME]", "Create and use environment"
+  def create(environment)
+    state_dir = state_dir_format(environment)
+
+    if not File.exists?(state_dir)
+      print "Environment does not exist. Create? [y/n]: "
+      choice = STDIN.gets.chomp
+      if choice == 'y'
+        Dir.mkdir(state_dir)
+        puts "Created directory: #{ state_dir }"
+      end
+    end
+    use(environment)
+    remote_setup
+  end
+
+  desc "delete [ENV_NAME]", "Remove environment"
+  def delete(environment)
+    state_dir = state_dir_format(environment)
+    FileUtils.rm_rf(state_dir)
+  end
+
+  desc "use [ENV_NAME]", "Switch to an env"
+  def use(environment)
+    state_dir = state_dir_format(environment)
+    puts "Using environment #{ state_dir }"
+    FileUtils.rm('.terraform', :force => true)
+    FileUtils.ln_s(state_dir, '.terraform', :force => true)
+  end
+
+  desc "remote_setup", "setup remote"
+  def remote_setup
+    settings = JSON.parse(File.read('Terrenv'))
+    puts system("terraform remote config \
+           -backend=s3 \
+           -backend-config=\"bucket=#{settings['bucket']}\" \
+           -backend-config=\"key=#{settings['project']}-#{current_env}.tfstate\" \
+           -backend-config=\"region=#{settings['region']}\"")
+  end
+
+  desc "setup", "setup project"
+  def setup
+    settings = Hash.new
+    settings[:project] = ask('Project name', 'empty')
+    settings[:bucket] = ask('s3 bucket', 'telusdigital-terraform-states')
+    settings[:region] = ask('bucket region', 'us-west-2')
+    File.open('Terrenv', 'w') { |file| file.write(settings.to_json) }
+  end
+  private
+  def ask(question, default)
+    print "#{question}: (#{default})"
+    answer = STDIN.gets.chomp
+    answer.empty? ? default : answer
+  end
+  def state_dir_format(name)
+    ".terraform-#{ name }"
+  end
+
+  def current_env
+    File.readlink('.terraform')[11..-1]
+  end
+end
+
+TerrEnv.start(ARGV)
