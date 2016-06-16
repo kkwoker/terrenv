@@ -2,6 +2,7 @@
 require 'bundler/setup'
 require 'thor'
 require 'json'
+require 'yaml'
 
 class TerrEnv < Thor
   desc "list", "list all environments"
@@ -41,7 +42,8 @@ class TerrEnv < Thor
 
   desc "remote_setup", "setup remote"
   def remote_setup
-    settings = JSON.parse(File.read('Terrenv'))
+    settings = YAML.load(File.read('Terrenv'))
+    puts "#{settings['project']}-#{current_env} remote being used"
     puts system("terraform remote config \
            -backend=s3 \
            -backend-config=\"bucket=#{settings['bucket']}\" \
@@ -52,14 +54,14 @@ class TerrEnv < Thor
   desc "setup", "setup project"
   def setup
     settings = Hash.new
-    settings[:project] = ask('Project name', 'empty')
-    settings[:bucket] = ask('s3 bucket', 'telusdigital-terraform-states')
-    settings[:region] = ask('bucket region', 'us-west-2')
-    File.open('Terrenv', 'w') { |file| file.write(settings.to_json) }
+    settings['project'] = ask('Project name', 'empty')
+    settings['bucket'] = ask('s3 bucket', 'telusdigital-terraform-states')
+    settings['region'] = ask('bucket region', 'us-west-2')
+    File.open('Terrenv', 'w') { |file| file.write(settings.to_yaml) }
   end
   private
   def ask(question, default)
-    print "#{question}: (#{default})"
+    print "#{question}(#{default}): "
     answer = STDIN.gets.chomp
     answer.empty? ? default : answer
   end
