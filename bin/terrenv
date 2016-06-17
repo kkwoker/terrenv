@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+# Development only
+$LOAD_PATH.unshift('/Users/kinnankwok/terraform-init/lib')
+
+require 'terrenv/cli'
+Terrenv::CLI.start(ARGV)
