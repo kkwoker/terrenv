@@ -3,17 +3,6 @@ require 'bundler/setup'
 require 'thor'
 require 'json'
 require 'yaml'
-require 'pry'
-class Hash
-  def to_tfvars
-    # TODO: Refactor
-    string = ""
-    self.each do |key, value|
-      string = "#{string}#{key}=\"#{value}\"\n"
-    end
-    string
-  end
-end
 
 class TerrEnv < Thor
   desc "list", "list all environments"
@@ -35,6 +24,7 @@ class TerrEnv < Thor
     end
     use(environment)
     remote_setup
+    link_env_variable_file(environment)
   end
 
   desc "delete [ENV_NAME]", "Remove environment"
@@ -55,8 +45,7 @@ class TerrEnv < Thor
 
   desc "remote_setup", "setup remote"
   def remote_setup
-    # TODO Instead of using YAML or a Terrenv file, use the vars-<env>.tfvars file and parse key = "value"
-    settings = tf_to_hash(File.read('Terrenv'))
+    settings = YAML.load(File.read('TerraformFile'))
     puts "#{settings['project']}-#{current_env} remote being used"
     puts system("terraform remote config \
            -backend=s3 \
@@ -67,16 +56,20 @@ class TerrEnv < Thor
 
   desc "setup", "setup project"
   def setup
-    # TODO: Write it into the vars-<env>.tfvars
     settings = Hash.new
     settings['project'] = ask('Project name', 'empty')
     settings['bucket'] = ask('s3 bucket', 'telusdigital-terraform-states')
     settings['region'] = ask('bucket region', 'us-west-2')
-    File.open("vars-#{current_env}.tfvars", 'w') { |file| file.write(settings.to_tfvars) }
+    File.open('TerraformFile', 'w') { |file| file.write(settings.to_yaml) }
   end
   private
-  def tf_to_hash(hash)
+  def link_env_variable_file(env)
+    state_dir = state_dir_format(env)
+    FileUtils.touch("#{state_dir}/#{current_env}.tfvar")
+    FileUtils.ln_s(".terraform-#{current_env}/#{current_env}.tfvars", "terraform.tfvars", :force => true)
+  end
 
+  def append_to_gitignore
   end
   def ask(question, default)
     print "#{question}(#{default}): "
