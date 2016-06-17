@@ -15,16 +15,13 @@ module Terrenv
       state_dir = state_dir_format(environment)
 
       if not File.exists?(state_dir)
-        print "Environment does not exist. Create? [y/n]: "
-        choice = STDIN.gets.chomp
-        if choice == 'y'
+       # print "Environment does not exist. Create? [y/n]: "
+       # choice = STDIN.gets.chomp
+       # if choice == 'y'
           Dir.mkdir(state_dir)
           puts "Created directory: #{ state_dir }"
-        end
+       # end
       end
-      use(environment)
-      remote_setup
-      link_env_variable_file(environment)
     end
 
     desc "delete [ENV_NAME]", "Remove environment"
@@ -43,6 +40,15 @@ module Terrenv
       FileUtils.ln_s(state_dir, '.terraform', :force => true)
     end
 
+    desc "apply", "Applies configuration from TerraformFile"
+    def apply
+      puts 'Creating environments...'
+      settings = YAML.load(File.read('TerraformFile'))
+      settings['environments'].each do |env|
+        create(env)
+      end
+    end
+
     desc "remote_setup", "setup remote"
     def remote_setup
       settings = YAML.load(File.read('TerraformFile'))
@@ -54,8 +60,8 @@ module Terrenv
              -backend-config=\"region=#{settings['region']}\"")
     end
 
-    desc "setup", "setup project"
-    def setup
+    desc "init", "setup project"
+    def init
       settings = Hash.new
       settings['project'] = ask('Project name', 'empty')
       settings['bucket'] = ask('s3 bucket', 'telusdigital-terraform-states')
@@ -77,7 +83,7 @@ module Terrenv
       answer.empty? ? default : answer
     end
     def state_dir_format(name)
-      ".terraform-#{ name }"
+      "terraform-#{ name }"
     end
 
     def current_env
