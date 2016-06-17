@@ -63,6 +63,7 @@ describe Terrenv::CLI do
       end
     end
   end
+  # TODO: Test when environment in Terrafile is not specified
   # require 'stringio'
   # describe '#init' do
   #   context '' do

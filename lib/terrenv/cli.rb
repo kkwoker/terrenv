@@ -9,6 +9,7 @@ module Terrenv
     def apply
       puts 'Creating environments'
       settings = YAML.load(File.read('TerraformFile'))
+      # TODO Delete environments not specified
       settings['environments'].each do |env|
         create(env)
       end
@@ -41,6 +42,7 @@ module Terrenv
       settings['project'] = ask('Project name', 'empty')
       settings['bucket'] = ask('s3 bucket', 'telusdigital-terraform-states')
       settings['region'] = ask('bucket region', 'us-west-2')
+      settings['environments'] = ['production', 'staging']
       File.open('TerraformFile', 'w') { |file| file.write(settings.to_yaml) }
     end
     private
