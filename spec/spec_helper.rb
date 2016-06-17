@@ -1,5 +1,6 @@
 require 'rspec'
 
+require 'terrenv'
 # from thor spec helper
 def capture(stream)
   begin
