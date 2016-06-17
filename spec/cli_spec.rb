@@ -2,15 +2,6 @@ require 'spec_helper'
 require 'terrenv/cli'
 
 describe Terrenv::CLI do
-  describe '#list' do
-    context 'when called' do
-      let(:output) { capture(:stdout) { subject.list } }
-      it 'says it is listing all environments' do
-        expect(output).to include('Listing all environments')
-      end
-    end
-  end
-
   describe '#apply' do
     context '' do
       let(:output) { capture(:stdout) { subject.apply } }
@@ -60,6 +51,10 @@ describe Terrenv::CLI do
         subject.use 'testing'
         expect(File.readlink('.terraform')).to eq 'terraform-testing'
       end
+      it 'does not use non-existent environments' do
+        subject.use 'non-existent'
+        expect(File.readlink('.terraform')).not_to eq 'terraform-non-existent'
+      end
       after(:all) do
         FileUtils.rm 'TerraformFile'
         FileUtils.rm_rf 'terraform-staging'
@@ -68,5 +63,17 @@ describe Terrenv::CLI do
       end
     end
   end
+  # require 'stringio'
+  # describe '#init' do
+  #   context '' do
+  #     let(:output) { capture(:stdout) { subject.init } }
+  #     before do
+  #       project = StringIO.new("rspec\n")
+  #       bucket = StringIO.new("somebucket\n")
+  #       region = StringIO.new("someregion\n")
+  #     end
+  #     it ''
+  #   end
+  # end
 
 end

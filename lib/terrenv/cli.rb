@@ -5,33 +5,22 @@ require 'yaml'
 
 module Terrenv
   class CLI < Thor
-    desc "list", "list all environments"
-    def list
-      puts "Listing all environments"
-    end
-
-    desc "delete [ENV_NAME]", "Remove environment"
-    def delete(environment)
-      # TODO: Deleted environment can still be in use
-      state_dir = state_dir_format(environment)
-      FileUtils.rm_rf(state_dir)
-    end
-
-    desc "use [ENV_NAME]", "Switch to an env"
-    def use(environment)
-      # TODO: Use can use environment that doesn't exist
-      state_dir = state_dir_format(environment)
-      puts "Using environment #{ state_dir }"
-      FileUtils.rm('.terraform', :force => true)
-      FileUtils.ln_s(state_dir, '.terraform', :force => true)
-    end
-
     desc "apply", "Applies configuration from TerraformFile"
     def apply
       puts 'Creating environments'
       settings = YAML.load(File.read('TerraformFile'))
       settings['environments'].each do |env|
         create(env)
+      end
+    end
+
+    desc "use [ENV_NAME]", "Switch to an env"
+    def use(environment)
+      state_dir = state_dir_format(environment)
+      puts "Using environment #{ state_dir }"
+      if Dir.exists?(state_dir)
+        FileUtils.rm('.terraform', :force => true)
+        FileUtils.ln_s(state_dir, '.terraform', :force => true)
       end
     end
 
@@ -55,6 +44,11 @@ module Terrenv
       File.open('TerraformFile', 'w') { |file| file.write(settings.to_yaml) }
     end
     private
+    def delete(environment)
+      # TODO: Deleted environment can still be in use
+      state_dir = state_dir_format(environment)
+      FileUtils.rm_rf(state_dir)
+    end
     def create(env)
       state_dir = state_dir_format(env)
       if not File.exists?(state_dir)
