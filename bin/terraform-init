@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 require 'bundler/setup'
 require 'thor'
-require 'json'
 require 'yaml'
 
 class TerrEnv < Thor
