@@ -10,20 +10,6 @@ module Terrenv
       puts "Listing all environments"
     end
 
-    desc "create [ENV_NAME]", "Create and use environment"
-    def create(environment)
-      state_dir = state_dir_format(environment)
-
-      if not File.exists?(state_dir)
-       # print "Environment does not exist. Create? [y/n]: "
-       # choice = STDIN.gets.chomp
-       # if choice == 'y'
-          Dir.mkdir(state_dir)
-          puts "Created directory: #{ state_dir }"
-       # end
-      end
-    end
-
     desc "delete [ENV_NAME]", "Remove environment"
     def delete(environment)
       # TODO: Deleted environment can still be in use
@@ -42,7 +28,7 @@ module Terrenv
 
     desc "apply", "Applies configuration from TerraformFile"
     def apply
-      puts 'Creating environments...'
+      puts 'Creating environments'
       settings = YAML.load(File.read('TerraformFile'))
       settings['environments'].each do |env|
         create(env)
@@ -69,6 +55,14 @@ module Terrenv
       File.open('TerraformFile', 'w') { |file| file.write(settings.to_yaml) }
     end
     private
+    def create(env)
+      state_dir = state_dir_format(env)
+      if not File.exists?(state_dir)
+        Dir.mkdir(state_dir)
+        FileUtils.touch("#{state_dir}/variables.tfvars")
+        puts "Created directory: #{ state_dir }"
+      end
+    end
     def link_env_variable_file(env)
       state_dir = state_dir_format(env)
       FileUtils.touch("#{state_dir}/#{current_env}.tfvar")
