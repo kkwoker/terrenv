@@ -14,3 +14,11 @@ def capture(stream)
 
   result
 end
+
+def cleanup
+  FileUtils.rm 'TerraformFile'
+  FileUtils.rm_rf 'terraform-production'
+  FileUtils.rm_rf 'terraform-staging'
+  FileUtils.rm_rf '.terraform'
+  FileUtils.rm_rf 'terraform.tfvars'
+end

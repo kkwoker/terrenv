@@ -12,6 +12,8 @@ module Terrenv
       # TODO Delete environments not specified
       settings['environments'].each do |env|
         create(env)
+        use(env)
+        remote_setup
       end
     end
 
@@ -20,8 +22,10 @@ module Terrenv
       state_dir = state_dir_format(environment)
       puts "Using environment #{ state_dir }"
       if Dir.exists?(state_dir)
-        FileUtils.rm('.terraform', :force => true)
-        FileUtils.ln_s(state_dir, '.terraform', :force => true)
+        FileUtils.rm('.terraform', force: true)
+        FileUtils.ln_s(state_dir, '.terraform', force: true)
+        FileUtils.rm('terraform.tfvars', force: true)
+        FileUtils.ln_s("#{state_dir}/terraform.tfvars", 'terraform.tfvars', force: true)
       end
     end
 
@@ -42,7 +46,7 @@ module Terrenv
       settings['project'] = ask('Project name', 'empty')
       settings['bucket'] = ask('s3 bucket', 'telusdigital-terraform-states')
       settings['region'] = ask('bucket region', 'us-west-2')
-      settings['environments'] = ['production', 'staging']
+      settings['environments'] = ['staging']
       File.open('TerraformFile', 'w') { |file| file.write(settings.to_yaml) }
     end
     private
@@ -55,7 +59,7 @@ module Terrenv
       state_dir = state_dir_format(env)
       if not File.exists?(state_dir)
         Dir.mkdir(state_dir)
-        FileUtils.touch("#{state_dir}/variables.tfvars")
+        FileUtils.touch("#{state_dir}/terraform.tfvars")
         puts "Created directory: #{ state_dir }"
       end
     end
@@ -77,7 +81,7 @@ module Terrenv
     end
 
     def current_env
-      File.readlink('.terraform')[11..-1]
+      File.readlink('.terraform')[10..-1]
     end
   end
 end

@@ -3,5 +3,5 @@ project: rspec
 bucket: telusdigital-terraform-states
 region: us-west-2
 environments:
+  - production
   - staging
-  - testing

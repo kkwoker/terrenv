@@ -14,23 +14,27 @@ describe Terrenv::CLI do
         expect(Dir.exists?('terraform-staging')).to be true
       end
 
-      it 'creates "terraform-staging/variables.tfvars"' do
-        expect(File.exists?("terraform-staging/variables.tfvars")).to be true
+      it 'creates "terraform-staging/terraform.tfvars"' do
+        expect(File.exists?("terraform-staging/terraform.tfvars")).to be true
       end
 
-      it 'creates "terraform-testing" directory' do
-        expect(Dir.exists?('terraform-testing')).to be true
+      it 'creates "terraform-production" directory' do
+        expect(Dir.exists?('terraform-production')).to be true
       end
 
-      it 'creates "terraform-testing/variables.tfvars"' do
-        expect(File.exists?("terraform-testing/variables.tfvars")).to be true
+      it 'creates "terraform-production/terraform.tfvars"' do
+        expect(File.exists?("terraform-production/terraform.tfvars")).to be true
       end
-      after(:all) do
-        FileUtils.rm 'TerraformFile'
-        FileUtils.rm_rf 'terraform-staging'
-        FileUtils.rm_rf 'terraform-testing'
-        FileUtils.rm_rf '.terraform'
+
+      it 'creates symlink ".terraform" pointing to .???' do
+        expect(File.readlink('.terraform')).to eq('terraform-staging')
       end
+
+      it 'creates unpointed symlink "terraform.tfvars"' do
+        expect(File.readlink('terraform.tfvars')).to eq('terraform-staging/terraform.tfvars')
+
+      end
+      after(:all) { cleanup }
     end
   end
 
@@ -47,20 +51,28 @@ describe Terrenv::CLI do
       it 'creates ".terraform" softlink to terraform-staging' do
         expect(File.readlink('.terraform')).to eq 'terraform-staging'
       end
-      it 'switches to terraform-testing' do
-        subject.use 'testing'
-        expect(File.readlink('.terraform')).to eq 'terraform-testing'
+      it 'switches to terraform-production' do
+        subject.use 'production'
+        expect(File.readlink('.terraform')).to eq 'terraform-production'
       end
       it 'does not use non-existent environments' do
         subject.use 'non-existent'
         expect(File.readlink('.terraform')).not_to eq 'terraform-non-existent'
       end
-      after(:all) do
-        FileUtils.rm 'TerraformFile'
-        FileUtils.rm_rf 'terraform-staging'
-        FileUtils.rm_rf 'terraform-testing'
-        FileUtils.rm_rf '.terraform'
+      after(:all) { cleanup }
+    end
+  end
+  describe '#current_env' do
+    context '' do
+      let(:environment) { subject.send(:current_env) }
+      before do
+        FileUtils.cp 'spec/test/resources/TerraformFile', './'
+        subject.apply
       end
+      it 'current environemnt should be staging' do
+        expect(environment).to eq 'staging'
+      end
+      after(:all) { cleanup }
     end
   end
   # TODO: Test when environment in Terrafile is not specified
