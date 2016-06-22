@@ -23,6 +23,7 @@ module Terrenv
       puts "Using environment #{ state_dir }"
       if Dir.exists?(state_dir)
         FileUtils.rm('.terraform', force: true)
+        # TODO: if .terraform exists and is not a soft link, this silently fails
         FileUtils.ln_s(state_dir, '.terraform', force: true)
         FileUtils.rm('terraform.tfvars', force: true)
         FileUtils.ln_s("#{state_dir}/terraform.tfvars", 'terraform.tfvars', force: true)
