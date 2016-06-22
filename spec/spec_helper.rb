@@ -1,6 +1,8 @@
-require 'rspec'
-
+require 'rspec' # Needed?
 require 'terrenv'
+
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+
 # from thor spec helper
 def capture(stream)
   begin
