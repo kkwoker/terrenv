@@ -4,13 +4,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'terrenv/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "terrenv"
+  spec.name          = "Terrenv"
   spec.version       = Terrenv::VERSION
   spec.authors       = ["Kinnan Kwok"]
   spec.email         = ["kkwoker@gmail.com"]
 
-  spec.summary       = 'Manages Terraform environments for you'
-  spec.description   = 'Allows you to manage different environments with terraform'
+  spec.summary       = 'Terrenv allows you to host separate environments of your terraform infrastructure by switching softlinks'
+  spec.description   = 'Terrenv allows you to host separate environments of your terraform infrastructure by switching softlinks'
   spec.homepage      = "https://github.com/kkwoker/terrenv"
   spec.license       = "MIT"
 
