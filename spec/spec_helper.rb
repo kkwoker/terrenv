@@ -23,4 +23,7 @@ def cleanup
   FileUtils.rm_rf 'terraform-staging'
   FileUtils.rm_rf '.terraform'
   FileUtils.rm_rf 'terraform.tfvars'
+
+  puts system("s3cmd del s3://telusdigital-terraform-states/rspec-production.tfstate")
+  puts system('s3cmd del s3://telusdigital-terraform-states/rspec-staging.tfstate')
 end
