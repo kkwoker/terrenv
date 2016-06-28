@@ -1,8 +1,10 @@
 # Terrenv
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/terrenv`. To experiment with that code, run `bin/console` for an interactive prompt.
+Terraform has an assumption that your infrastructure would only be deployed
+once. But what if you wanted a staging or testing environment? You would have
+to manage state files and variable files yourself in different directories.
 
-TODO: Delete this and the text above, and describe your gem
+Terrenv is a simple tool that lets you switch environments seemlessly.
 
 ## Installation
 
@@ -22,7 +24,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Run
+
+    $ terrenv init
+
+and follow the instructions to generate a TerraformFile
 
 ## Development
 
