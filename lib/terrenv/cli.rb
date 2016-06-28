@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-require 'bundler/setup'
 require 'thor'
 require 'yaml'
+require 'terrenv/version'
 
 module Terrenv
   class CLI < Thor
