@@ -5,6 +5,13 @@ require 'yaml'
 
 module Terrenv
   class CLI < Thor
+    map %w[--version -v] => :__print_version
+
+    desc "--version, -v", "print the version"
+    def __print_version
+      puts Terrenv::VERSION
+    end
+
     desc "apply", "Applies configuration from TerraformFile"
     def apply
       puts 'Creating environments'
