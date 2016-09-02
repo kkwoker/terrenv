@@ -8,17 +8,7 @@ Terrenv is a simple tool that lets you switch environments seemlessly.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'terrenv'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it with:
 
     $ gem install terrenv
 
