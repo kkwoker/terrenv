@@ -21,15 +21,15 @@ Run
 and follow the instructions to generate a TerraformFile
 
 ## Commands
-
+```
     $ terrenv init
-
+```
 will ask you some questions to setup your TerraformFile. You will need to run
 `terrenv apply` inorder to apply the settings.
 
-
+```
     $ terrenv apply
-
+```
 
 will take the configuration in the TerraformFile does a few steps for setup
 
@@ -38,9 +38,9 @@ will take the configuration in the TerraformFile does a few steps for setup
    the S3 bucket and placed inside `terraform-<environment>`
 3. Sets up your environment to the last environment specified on the TerraformFile
 
-
+```
     $ terrenv use <environment>
-
+```
 
 will switch the symlinks to point to the environment specified.
 
