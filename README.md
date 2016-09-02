@@ -30,6 +30,7 @@ will ask you some questions to setup your TerraformFile. You will need to run
 
     $ terrenv apply
 
+
 will take the configuration in the TerraformFile does a few steps for setup
 
 1. Create directories for each environment labeled `terraform-<environment>`.
@@ -39,6 +40,7 @@ will take the configuration in the TerraformFile does a few steps for setup
 
 
     $ terrenv use <environment>
+
 
 will switch the symlinks to point to the environment specified.
 
