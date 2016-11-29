@@ -15,7 +15,12 @@ module Terrenv
     desc "apply", "Applies configuration from TerraformFile"
     def apply
       puts 'Creating environments'
-      settings = YAML.load(File.read('TerraformFile'))
+      begin
+        settings = YAML.load(File.read('TerraformFile'))
+      rescue
+        puts "Couldn't find TerraformFile, did you initialize it?"
+        exit 1
+      end
       # TODO Delete environments not specified
       settings['environments'].each do |env|
         create(env)
